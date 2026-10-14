@@ -5759,6 +5759,12 @@ function renderLexA(){
     (adv ? chip('dvuse',adv,esc(adv),false,'','advérbio') : '') || '<span class="sub">Este adjetivo só entra como parte do substantivo (use o cartão do substantivo).</span>';
   $('la-tonoun').innerHTML = S.an ? chip('ajnoun',a.k,'Abrir “'+esc(IT.NOUN_BY[S.an].it+' '+a.it)+'” no cartão do substantivo',false,'') : '';
 }
+/* conectores com infinitivo (affinché → per, dopo che → dopo, prima che → prima di…): ao escolher, mostra o conector literal
+   usando outra pessoa na 2ª oração. Com a mesma pessoa o motor troca pelo infinitivo (regra do italiano), e a nota explica. */
+function keepLiteralConj(){
+  const CJ = S.conj ? IT.CBY[S.conj] : null;
+  if(CJ && CJ.inf && !CJ.infOnly && S.p2 === S.person) S.p2 = (S.person === 'tu') ? 'lui' : 'tu';
+}
 /* ---------- Advérbios ---------- */
 const AD_FIT = { how:'Modo', where:'Lugar', mid:'Sinal (entre auxiliar e particípio)' };
 function adFitLabel(d){ return d.fit==='-' ? 'só consulta' : d.fit.indexOf('when:')===0 ? 'Tempo' : AD_FIT[d.fit]; }
@@ -5975,8 +5981,8 @@ document.addEventListener('click', e=>{
     case 'when': S.when = +v; break;
     case 'wh': S.wh = v || null; break;
     case 'struct': S.struct = v; break;
-    case 'conj': S.conj = v; break;
-    case 'cjuse': { S.conj = v; if(S.fmt==='int'||S.fmt==='intneg') S.fmt = 'aff'; render(); const t = $('dial-conj'); if(t) t.scrollIntoView({block:'start'}); return; }
+    case 'conj': S.conj = v; keepLiteralConj(); break;
+    case 'cjuse': { S.conj = v; keepLiteralConj(); if(S.fmt==='int'||S.fmt==='intneg') S.fmt = 'aff'; render(); const t = $('dial-conj'); if(t) t.scrollIntoView({block:'start'}); return; }
     case 'p2': S.p2 = v; break;
     case 'comp2': S.comp2 = +v; break;
     case 'neg2': S.neg2 = v==='1'; break;
